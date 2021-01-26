@@ -3,14 +3,11 @@ let router = express.Router();
 const validateSession = require('../middleware/validate-session');
 const Workout = require('../db').import('../models/log');
 
-router.get('/workout', function (req, res){
-    res.send("This is a practice route!");
-});
 
 /* ********************
  *** LOG CREATE ***
  ********************* */
-router.post('/create', validateSession, (req, res) => {
+router.post('/', validateSession, (req, res) => {
     const workoutLog = {
       description: req.body.log.description,
       definition: req.body.log.definition,
@@ -22,16 +19,27 @@ router.post('/create', validateSession, (req, res) => {
       .catch(err => res.status(500).json({ error: err }))
   });
 
-
-
 /* ********************
  *** GET ENTRIES BY USER ***
  ********************* */
-router.get('/:description', function (req, res) {
-  let title = req.params.description;
+router.get('/mine', validateSession, function (req, res) {
+  let userid = req.user.id;
 
   Workout.findAll({
-    where: { description: description }
+    where: { owner_id: userid }
+  })
+    .then(logs => res.status(200).json(logs))
+    .catch(err => res.status(500).json({ error: err }))
+});
+
+/* ********************
+ *** GET ENTRIES BY ID FOR INDIVIDUAL USER***
+ ********************* */
+router.get('/:id', validateSession, function (req, res) {
+  let id = req.params.id;
+
+  Workout.findAll({
+    where: { id: id }
   })
     .then(logs => res.status(200).json(logs))
     .catch(err => res.status(500).json({ error: err }))
@@ -40,14 +48,14 @@ router.get('/:description', function (req, res) {
 /* ********************
  *** UPDATE LOGS BY USER***
  ********************* */
-router.put("/update/:entryId", validateSession, function (req, res) {
+router.put("/update/:id", validateSession, function (req, res) {
   const updateLogEntry = {
     description: req.body.log.description,
     definition: req.body.log.definition,
     result: req.body.log.result,
   };
 
-  const query = { where: { id: req.params.entryId, owner: req.user.id } };
+  const query = { where: { id: req.params.id, owner_id: req.user.id } };
 
   Workout.update(updateLogEntry, query)
     .then(logs => res.status(200).json(logs))
@@ -58,20 +66,12 @@ router.put("/update/:entryId", validateSession, function (req, res) {
  *** DELETE LOGS BY USER***
  ********************* */
 router.delete("/delete/:id", validateSession, function(req, res){
-  const query = { where: { id: req.params.id, owner: req.user.id } };
+  const query = { where: { id: req.params.id, owner_id: req.user.id } };
 
-  Journal.destroy(query)
+  Workout.destroy(query)
     .then(() => res.status(200).json({ message: "Log Entry Removed" }))
     .catch((err) => res.status(500).json({ error: err }))
 });
 
 
 module.exports = router;
-
-
-/* STARTING TEMPLATE */
-
-// let express = require('express');
-// let router = express.Router();
-
-// module.exports = router;

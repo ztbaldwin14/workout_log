@@ -22,7 +22,7 @@ router.post('/', validateSession, (req, res) => {
 /* ********************
  *** GET ENTRIES BY USER ***
  ********************* */
-router.get('/mine', validateSession, function (req, res) {
+router.get('/:owner_id', validateSession, function (req, res) {
   let userid = req.user.id;
 
   Workout.findAll({

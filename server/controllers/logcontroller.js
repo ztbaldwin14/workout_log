@@ -22,7 +22,7 @@ router.post('/', validateSession, (req, res) => {
 /* ********************
  *** GET ENTRIES BY USER ***
  ********************* */
-router.get('/:id', validateSession, function (req, res) {
+router.get('/', validateSession, function (req, res) {
   let userid = req.user.id;
 
   Workout.findAll({
@@ -35,7 +35,7 @@ router.get('/:id', validateSession, function (req, res) {
 /* ********************
  *** GET ENTRIES BY ID FOR INDIVIDUAL USER***
  ********************* */
-router.get('/:owner_id', validateSession, function (req, res) {
+router.get('/:id', validateSession, function (req, res) {
   let id = req.params.id;
 
   Workout.findAll({
@@ -65,7 +65,7 @@ router.put("/:id", validateSession, function (req, res) {
 /* ********************
  *** DELETE LOGS BY USER***
  ********************* */
-router.delete(":id", validateSession, function(req, res){
+router.delete("/:id", validateSession, function(req, res){
   const query = { where: { id: req.params.id, owner_id: req.user.id } };
 
   Workout.destroy(query)
